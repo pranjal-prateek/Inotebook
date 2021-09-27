@@ -1,7 +1,7 @@
 const express = require('express');
 const connectToMongo=require('./db.js');
 connectToMongo();
-const port=3000;
+const port=5000;
 const app=express();
 app.use(express.json())
 app.get('/',(req,res)=>{
