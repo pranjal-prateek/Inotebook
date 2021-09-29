@@ -52,4 +52,37 @@ router.post('/createuser',[
     }
 
 })
+
+//Authenticate a user POST "api/auth/login"
+router.post('/login',[ 
+    body('email','Enter a valid Email Address').isEmail(),
+    body('password',"password cannot be blank").exists()],
+async (req,res)=>{
+    const errors=validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({error:errors.array()})
+    }
+    const {email,password}=req.body;
+    try{
+        let user=await  User.findOne({email});
+        if(!user){
+            return res.status(400).json({error:"Please try to login with correct credentials"});
+        }
+        const passwordCompare = await bcrypt.compare(password,user.password);
+            if(!passwordCompare){
+                return res.status(400).json({error:"Please try to login with correct credentials"})
+            }
+            const data={
+                user:{
+                    id:User.id,
+                }
+                
+            }
+            const authtoken=jwt.sign(data,JWT_SECRET);
+            res.json(authtoken);
+    }catch(error){
+        console.error(error.message)
+        res.status(500).send('Internal server error ')
+    }
+})
 module.exports = router;
